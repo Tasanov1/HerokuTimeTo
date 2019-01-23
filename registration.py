@@ -1,12 +1,12 @@
 import psycopg2
 from telegram import ReplyKeyboardMarkup
-from keyboards import *
+import keyboards
 from pytz import all_timezones
 import pytz
 from pytz import timezone
+import datetime
 from telegram.ext import ConversationHandler
-from main import *
-from keyboards import *
+import main
 
 NAME, BIRTH, CITY, INSTA, STUDY, JOB, HOBBY, GOALS, TYPE, TIMEZONE, PAGE= range(11)
 
@@ -19,7 +19,7 @@ def askName(bot, update):
     cursor.execute("INSERT INTO Users VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (chat_id, text, "*", "*", "*", "*", "*", "*", user, "*", '*', '*'))
     conn.commit()
-    sendMessage(bot, update, '*Дата рождения:*\n(в формате dd/mm/yyyy, 01/01/2019)')
+    main.sendMessage((bot, update, '*Дата рождения:*\n(в формате dd/mm/yyyy, 01/01/2019)'))
     return BIRTH
 
 def askBirth(bot, update):
@@ -34,12 +34,12 @@ def askBirth(bot, update):
     y = int(text[6:])
     year = datetime.datetime.now().year
     if d > 31 or d < 1 or m < 1 or m > 12 or y > year or y < 1934:
-        sendMessage(bot, update, 'Пожалуйста, введите в правильном формате.\n(в формате dd/mm/yyyy, 01/01/2019)')
+        main.sendMessage(bot, update, 'Пожалуйста, введите в правильном формате.\n(в формате dd/mm/yyyy, 01/01/2019)')
         return BIRTH
     else:
         cursor.execute("UPDATE Users SET birth = %s WHERE chat_id = %s", [text, chat_id])
         conn.commit()
-        sendMessage(bot, update, "В каком *Городе* вы живете?")
+        main.sendMessage(bot, update, "В каком *Городе* вы живете?")
         return CITY
 
 def askCity(bot, update):
@@ -49,7 +49,7 @@ def askCity(bot, update):
     text = update.message.text
     cursor.execute("UPDATE Users SET city = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    sendMessage(bot, update, "*Insta:*\n(Если нет инсты, напишите просто нет)")
+    main.sendMessage(bot, update, "*Insta:*\n(Если нет инсты, напишите просто нет)")
     return INSTA
 
 def askInsta(bot, update):
@@ -60,7 +60,7 @@ def askInsta(bot, update):
     text = text.replace('@', '')
     cursor.execute("UPDATE Users SET insta = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    sendMessage(bot, update, "*Место учебы:*")
+    main.sendMessage(bot, update, "*Место учебы:*")
     return STUDY
 
 def askStudy(bot, update):
@@ -70,7 +70,7 @@ def askStudy(bot, update):
     text = update.message.text
     cursor.execute("UPDATE Users SET study = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    sendMessage(bot, update, "*Место работы:*\n(Если не работаете, напишите просто нет)")
+    main.sendMessage(bot, update, "*Место работы:*\n(Если не работаете, напишите просто нет)")
     return JOB
 
 def askJob(bot, update):
@@ -80,7 +80,7 @@ def askJob(bot, update):
     text = update.message.text
     cursor.execute("UPDATE Users SET job = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    sendMessage(bot, update, "*Хобби:*")
+    main.sendMessage(bot, update, "*Хобби:*")
     return HOBBY
 
 def askHobby(bot, update):
@@ -90,7 +90,7 @@ def askHobby(bot, update):
     text = update.message.text
     cursor.execute("UPDATE Users SET hobby = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    sendMessage(bot, update, "*Цель:*")
+    main.sendMessage(bot, update, "*Цель:*")
     return GOALS
 
 def askGoals(bot, update):
@@ -118,11 +118,11 @@ def update_keyboard(bot, query, text):
             ans2.append(i[1])
     k = [i for i in ans if not i in ans2]
     for i in k:
-        keyboard.append([InlineKeyboardButton(i, callback_data=i)])
+        keyboard.append([keyboards.InlineKeyboardButton(i, callback_data=i)])
     bot.edit_message_text(chat_id=query.message.chat_id,
                           message_id=query.message.message_id,
                           text="Выберите навыки. Затем нажмите на кнопку 'send'",
-                          reply_markup=InlineKeyboardMarkup(keyboard))
+                          reply_markup=keyboards.InlineKeyboardMarkup(keyboard))
 
 def askType(bot, update):
     conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
@@ -162,7 +162,7 @@ def askType(bot, update):
         bot.edit_message_text(chat_id=query.message.chat_id,
                               message_id=query.message.message_id,
                               text="Спасибо!")
-        sendMessage(bot, query, "Введите *часовой пояс:*\n(в таком формате +06:00, +05:00, -06:00. +03:00))")
+        main.sendMessage(bot, query, "Введите *часовой пояс:*\n(в таком формате +06:00, +05:00, -06:00. +03:00))")
 
         return TIMEZONE
 
