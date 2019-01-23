@@ -4,12 +4,13 @@ import constants
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, Bot, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Updater
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler
-from keyboards import *
+import keyboards
 import time
-from registration import *
+import registration
 from telegram.ext import MessageHandler, Filters
 import datetime
 from pytz import all_timezones
+import pytz
 from pytz import timezone
 TOKEN = constants.token
 NAME, BIRTH, CITY, INSTA, STUDY, JOB, HOBBY, GOALS, TYPE, TIMEZONE, EXERCISE, EXTRA, EXPERT, INSIGHT, BOOK, PAGE, LEADERBOARD = range(17)
@@ -148,7 +149,7 @@ def start(bot, update):
         if i[0] == chat_id:
             check = True
     if check:
-        update.message.reply_text("Добро пожаловать! " + user, reply_markup=main_menu_keyboard())
+        update.message.reply_text("Добро пожаловать! " + user, reply_markup=keyboards.main_menu_keyboard())
     else:
         sendMessage(bot, update, "Привет! Я #timetoBot. \nПожалуйста, пройдите регистрацию! \n*Имя и Фамилия:*")
         return NAME
@@ -158,21 +159,21 @@ def main_menu(bot, update):
     bot.edit_message_text(chat_id=query.message.chat_id,
                         message_id=query.message.message_id,
                         text="Меню",
-                        reply_markup=main_menu_keyboard())
+                        reply_markup=keyboards.main_menu_keyboard())
 
 def first_menu(bot, update):
     query = update.callback_query
     bot.edit_message_text(chat_id=query.message.chat_id,
                             message_id=query.message.message_id,
                             text="#challenge",
-                            reply_markup=first_menu_keyboard())
+                            reply_markup=keyboards.first_menu_keyboard())
 
 def second_menu(bot, update):
     query = update.callback_query
     bot.edit_message_text(chat_id=query.message.chat_id,
                             message_id=query.message.message_id,
                             text="#skills",
-                            reply_markup=second_menu_keyboard())
+                            reply_markup=keyboards.second_menu_keyboard())
 
 def statistics(bot, update):
     conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
@@ -219,7 +220,7 @@ def statistics(bot, update):
 
 def profile(bot, update):
     query = update.callback_query
-    sendMessage(bot, query, getInfo(query.message.chat_id))
+    sendMessage(bot, query, registration.getInfo(query.message.chat_id))
 
 def insight(bot, update):
     query = update.callback_query
@@ -455,14 +456,14 @@ def main():
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            NAME: [MessageHandler(Filters.text, askName)],
-            BIRTH: [MessageHandler(Filters.text, askBirth)],
-            CITY: [MessageHandler(Filters.text, askCity)],
-            INSTA: [MessageHandler(Filters.text, askInsta)],
-            STUDY: [MessageHandler(Filters.text, askStudy)],
-            JOB: [MessageHandler(Filters.text, askJob)],
-            HOBBY: [MessageHandler(Filters.text, askHobby)],
-            GOALS: [MessageHandler(Filters.text, askGoals)]
+            NAME: [MessageHandler(Filters.text, registration.askName)],
+            BIRTH: [MessageHandler(Filters.text, registration.askBirth)],
+            CITY: [MessageHandler(Filters.text, registration.askCity)],
+            INSTA: [MessageHandler(Filters.text, registration.askInsta)],
+            STUDY: [MessageHandler(Filters.text, registration.askStudy)],
+            JOB: [MessageHandler(Filters.text, registration.askJob)],
+            HOBBY: [MessageHandler(Filters.text, registration.askHobby)],
+            GOALS: [MessageHandler(Filters.text, registration.askGoals)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
@@ -478,7 +479,7 @@ def main():
     m3 = ConversationHandler(
         entry_points=[CallbackQueryHandler(insight, pattern='m3')],
         states={
-            INSIGHT: [MessageHandler(Filters.text, askInsight)]
+            INSIGHT: [MessageHandler(Filters.text, registration.askInsight)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
@@ -487,34 +488,34 @@ def main():
     dispatcher.add_handler(CallbackQueryHandler(profile, pattern='m5'))
 
     #Types-----------------------------------------------------------------
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='design'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='language'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='filmmaking'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='photography'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='finance'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='management'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='data science'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='web development'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='mobile development'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='dance'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='music'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='art'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='sport'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='oratory'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='stylist'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='startup'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='hardware'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='psychology'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='hiking'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='games'))
-    dispatcher.add_handler(CallbackQueryHandler(askType, pattern='travel'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='design'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='language'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='filmmaking'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='photography'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='finance'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='management'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='data science'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='web development'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='mobile development'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='dance'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='music'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='art'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='sport'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='oratory'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='stylist'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='startup'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='hardware'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='psychology'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='hiking'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='games'))
+    dispatcher.add_handler(CallbackQueryHandler(registration.askType, pattern='travel'))
     dispatcher.add_handler(CallbackQueryHandler(skills, pattern='marketing'))
     #dispatcher.add_handler(CallbackQueryHandler(skills, pattern='others'))
 
     types = ConversationHandler(
-        entry_points=[CallbackQueryHandler(askType, pattern='send')],
+        entry_points=[CallbackQueryHandler(registration.askType, pattern='send')],
         states={
-            TIMEZONE: [MessageHandler(Filters.text, askTimezone)]
+            TIMEZONE: [MessageHandler(Filters.text, registration.askTimezone)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
@@ -537,7 +538,7 @@ def main():
     exc = ConversationHandler(
         entry_points=[CallbackQueryHandler(options, pattern='exercise')],
         states={
-            EXERCISE: [MessageHandler(Filters.text, askExercise)]
+            EXERCISE: [MessageHandler(Filters.text, registration.askExercise)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
@@ -545,7 +546,7 @@ def main():
     exp = ConversationHandler(
         entry_points=[CallbackQueryHandler(options, pattern='expert')],
         states={
-            EXPERT: [MessageHandler(Filters.text, askExpert)]
+            EXPERT: [MessageHandler(Filters.text, registration.askExpert)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
@@ -553,7 +554,7 @@ def main():
     ext = ConversationHandler(
         entry_points=[CallbackQueryHandler(options, pattern='extra')],
         states={
-            EXTRA: [MessageHandler(Filters.text, askExtra)]
+            EXTRA: [MessageHandler(Filters.text, registration.askExtra)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]
     )
