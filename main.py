@@ -6,7 +6,7 @@ from telegram.ext import Updater
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler
 import keyboards
 import time
-import registration
+#import registration
 from telegram.ext import MessageHandler, Filters
 import datetime
 from pytz import all_timezones
