@@ -6,12 +6,25 @@ import pytz
 from pytz import timezone
 import datetime
 from telegram.ext import ConversationHandler
-import main
+import telegram
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 NAME, BIRTH, CITY, INSTA, STUDY, JOB, HOBBY, GOALS, TYPE, TIMEZONE, PAGE= range(11)
 
+def sendMessage(bot, update, text, reply_markup=None):
+    if(reply_markup):
+        reply_markup = InlineKeyboardMarkup(reply_markup)
+    bot.send_message(
+        chat_id=update.message.chat_id,
+        text=text,
+        reply_markup=reply_markup,
+        parse_mode=telegram.ParseMode.MARKDOWN
+    )
+
 def askName(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
@@ -19,11 +32,13 @@ def askName(bot, update):
     cursor.execute("INSERT INTO Users VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (chat_id, text, "*", "*", "*", "*", "*", "*", user, "*", '*', '*'))
     conn.commit()
-    main.sendMessage((bot, update, '*Дата рождения:*\n(в формате dd/mm/yyyy, 01/01/2019)'))
+    sendMessage((bot, update, '*Дата рождения:*\n(в формате dd/mm/yyyy, 01/01/2019)'))
     return BIRTH
 
 def askBirth(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
@@ -34,79 +49,93 @@ def askBirth(bot, update):
     y = int(text[6:])
     year = datetime.datetime.now().year
     if d > 31 or d < 1 or m < 1 or m > 12 or y > year or y < 1934:
-        main.sendMessage(bot, update, 'Пожалуйста, введите в правильном формате.\n(в формате dd/mm/yyyy, 01/01/2019)')
+        sendMessage(bot, update, 'Пожалуйста, введите в правильном формате.\n(в формате dd/mm/yyyy, 01/01/2019)')
         return BIRTH
     else:
         cursor.execute("UPDATE Users SET birth = %s WHERE chat_id = %s", [text, chat_id])
         conn.commit()
-        main.sendMessage(bot, update, "В каком *Городе* вы живете?")
+        sendMessage(bot, update, "В каком *Городе* вы живете?")
         return CITY
 
 def askCity(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
     cursor.execute("UPDATE Users SET city = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    main.sendMessage(bot, update, "*Insta:*\n(Если нет инсты, напишите просто нет)")
+    sendMessage(bot, update, "*Insta:*\n(Если нет инсты, напишите просто нет)")
     return INSTA
 
 def askInsta(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
     text = text.replace('@', '')
     cursor.execute("UPDATE Users SET insta = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    main.sendMessage(bot, update, "*Место учебы:*")
+    sendMessage(bot, update, "*Место учебы:*")
     return STUDY
 
 def askStudy(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
     cursor.execute("UPDATE Users SET study = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    main.sendMessage(bot, update, "*Место работы:*\n(Если не работаете, напишите просто нет)")
+    sendMessage(bot, update, "*Место работы:*\n(Если не работаете, напишите просто нет)")
     return JOB
 
 def askJob(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
     cursor.execute("UPDATE Users SET job = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    main.sendMessage(bot, update, "*Хобби:*")
+    sendMessage(bot, update, "*Хобби:*")
     return HOBBY
 
 def askHobby(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
     cursor.execute("UPDATE Users SET hobby = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
-    main.sendMessage(bot, update, "*Цель:*")
+    sendMessage(bot, update, "*Цель:*")
     return GOALS
 
 def askGoals(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     text = update.message.text
     cursor.execute("UPDATE Users SET goals = %s WHERE chat_id = %s", [text, chat_id])
     conn.commit()
 
-    update.message.reply_text("Выберите навыки. Затем нажмите на кнопку 'send'", reply_markup=choose_keyboard())
+    update.message.reply_text("Выберите навыки. Затем нажмите на кнопку 'send'", reply_markup=keyboards.choose_keyboard())
     return ConversationHandler.END
 
 def update_keyboard(bot, query, text):
     chat_id = query.message.chat_id
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM CheckBox")
     all = cursor.fetchall()
@@ -118,14 +147,16 @@ def update_keyboard(bot, query, text):
             ans2.append(i[1])
     k = [i for i in ans if not i in ans2]
     for i in k:
-        keyboard.append([keyboards.InlineKeyboardButton(i, callback_data=i)])
+        keyboard.append([InlineKeyboardButton(i, callback_data=i)])
     bot.edit_message_text(chat_id=query.message.chat_id,
                           message_id=query.message.message_id,
                           text="Выберите навыки. Затем нажмите на кнопку 'send'",
-                          reply_markup=keyboards.InlineKeyboardMarkup(keyboard))
+                          reply_markup=InlineKeyboardMarkup(keyboard))
 
 def askType(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM CheckBox")
     all = cursor.fetchall()
@@ -162,13 +193,15 @@ def askType(bot, update):
         bot.edit_message_text(chat_id=query.message.chat_id,
                               message_id=query.message.message_id,
                               text="Спасибо!")
-        main.sendMessage(bot, query, "Введите *часовой пояс:*\n(в таком формате +06:00, +05:00, -06:00. +03:00))")
+        sendMessage(bot, query, "Введите *часовой пояс:*\n(в таком формате +06:00, +05:00, -06:00. +03:00))")
 
         return TIMEZONE
 
 def askTimezone(bot, update):
     now_utc = datetime.datetime.now(pytz.timezone('UTC'))
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     user = update.message.from_user.name
@@ -215,7 +248,9 @@ def askInsight(bot, update):
 def askExercise(bot, update):
     chat_id = update.message.chat_id
     text = update.message.text
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users")
     all = cursor.fetchall()
@@ -239,7 +274,9 @@ def askExercise(bot, update):
 def askExpert(bot, update):
     chat_id = update.message.chat_id
     ex = update.message.text
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users")
     all = cursor.fetchall()
@@ -263,7 +300,9 @@ def askExpert(bot, update):
 def askExtra(bot, update):
     chat_id = update.message.chat_id
     ex = update.message.text
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users")
     all = cursor.fetchall()
@@ -285,7 +324,9 @@ def askExtra(bot, update):
     return ConversationHandler.END
 
 def getInfo(chat_id):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users")
     arr = cursor.fetchall()
