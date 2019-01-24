@@ -6,7 +6,7 @@ from telegram.ext import Updater
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler
 import keyboards
 import time
-#import registration
+import registration
 from telegram.ext import MessageHandler, Filters
 import datetime
 from pytz import all_timezones
@@ -15,27 +15,20 @@ from pytz import timezone
 TOKEN = constants.token
 NAME, BIRTH, CITY, INSTA, STUDY, JOB, HOBBY, GOALS, TYPE, TIMEZONE, EXERCISE, EXTRA, EXPERT, INSIGHT, BOOK, PAGE, LEADERBOARD = range(17)
 
-conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com",database="dbriphi43088cm", user="plnyazdgkwqlaj", password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
 cursor = conn.cursor()
 cursor.execute("""
         SELECT *
         FROM Users
     """)
 users = cursor.fetchall()
-def sendMessage(bot, update, text, reply_markup=None):
-    if(reply_markup):
-        reply_markup = InlineKeyboardMarkup(reply_markup)
-    bot.send_message(
-        chat_id=update.message.chat_id,
-        text=text,
-        reply_markup=reply_markup,
-        parse_mode=telegram.ParseMode.MARKDOWN
-    )
 
 def leaderboard(bot, update):
     chat_id = update.message.chat_id
     if chat_id == 488113841 or chat_id == 94762933:
-        conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+        conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                                user="plnyazdgkwqlaj",
+                                password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
         cursor = conn.cursor()
         chat_id = update.message.chat_id
         cursor.execute("SELECT * FROM WakeUp ORDER BY point DESC")
@@ -98,18 +91,20 @@ def leaderboard(bot, update):
         users = cursor.fetchall()
         count = len(users)
         text += 'Количество участников: ' + str(count)
-        sendMessage(bot, update, text)
+        registration.sendMessage(bot, update, text)
 
 def cancel(bot, update):
-    sendMessage(bot, update, 'Отмена')
+    registration.sendMessage(bot, update, 'Отмена')
     return ConversationHandler.END
 
 def help(bot, update):
-    sendMessage(bot, update, '/start - команда для вызова меню\n/help - помощь по командам\n/cancel - отмена')
+    registration.sendMessage(bot, update, '/start - команда для вызова меню\n/help - помощь по командам\n/cancel - отмена')
 
 def start(bot, update):
     user = update.message.from_user.name
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("""
         SELECT *
@@ -151,7 +146,7 @@ def start(bot, update):
     if check:
         update.message.reply_text("Добро пожаловать! " + user, reply_markup=keyboards.main_menu_keyboard())
     else:
-        sendMessage(bot, update, "Привет! Я #timetoBot. \nПожалуйста, пройдите регистрацию! \n*Имя и Фамилия:*")
+        registration.sendMessage(bot, update, "Привет! Я #timetoBot. \nПожалуйста, пройдите регистрацию! \n*Имя и Фамилия:*")
         return NAME
 
 def main_menu(bot, update):
@@ -176,7 +171,9 @@ def second_menu(bot, update):
                             reply_markup=keyboards.second_menu_keyboard())
 
 def statistics(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     query = update.callback_query
     chat_id = query.message.chat_id
@@ -216,19 +213,21 @@ def statistics(bot, update):
     for i in reading:
         if i[1] == chat_id:
             text += '\n#reading: ' + i[3][:-16]+ ', book: ' + i[4] + ', pages: ' + str(i[5]) + ', points: ' + str(i[2])
-    sendMessage(bot, query, 'Статистика: \n' + text)
+    registration.sendMessage(bot, query, 'Статистика: \n' + text)
 
 def profile(bot, update):
     query = update.callback_query
-    sendMessage(bot, query, registration.getInfo(query.message.chat_id))
+    registration.sendMessage(bot, query, registration.getInfo(query.message.chat_id))
 
 def insight(bot, update):
     query = update.callback_query
-    sendMessage(bot, query, 'Свой инсайт: ')
+    registration.sendMessage(bot, query, 'Свой инсайт: ')
     return INSIGHT
 
 def search(type):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("""
                     SELECT *
@@ -251,11 +250,13 @@ def skills(bot, update):
     query = update.callback_query
     type = str(query.data)
     text = search(type)
-    sendMessage(bot, query, text)
+    registration.sendMessage(bot, query, text)
 
 def everyDay(current, option, chat_id):
     minute = int(current.hour)*60+current.minute
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     if option == 'wakeup':
         cursor.execute("SELECT * FROM WakeUp")
@@ -336,7 +337,9 @@ def options(bot, update):
     chat_id = query.message.chat_id
     option = str(query.data)
     text = ""
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users")
     all = cursor.fetchall()
@@ -348,13 +351,13 @@ def options(bot, update):
 
     if option == "wakeup":
         text = everyDay(current, option, chat_id)
-        sendMessage(bot, query, text)
+        registration.sendMessage(bot, query, text)
     elif option == "scribing":
         text = everyDay(current, option, chat_id)
-        sendMessage(bot, query, text)
+        registration.sendMessage(bot, query, text)
     elif option == 'visualization':
         text = everyDay(current, option, chat_id)
-        sendMessage(bot, query, text)
+        registration.sendMessage(bot, query, text)
     elif option == 'exercise':
         cursor.execute("SELECT * FROM Exercise")
         arr = cursor.fetchall()
@@ -369,19 +372,19 @@ def options(bot, update):
                     lastday = str(i[3])[8:-19]
                     check = 1
         if check == 0:
-            sendMessage(bot, query, 'Какие упражнения делали?')
+            registration.sendMessage(bot, query, 'Какие упражнения делали?')
             return EXERCISE
         elif check == 1:
             if lastday < str(current.day):
-                sendMessage(bot, query, 'Какие упражнения делали?')
+                registration.sendMessage(bot, query, 'Какие упражнения делали?')
                 return EXERCISE
             else:
-                sendMessage(bot, query, 'Отдохните, вы сегодня уже делали упражения)\nВаш пойнт: ' + str(point))
+                registration.sendMessage(bot, query, 'Отдохните, вы сегодня уже делали упражения)\nВаш пойнт: ' + str(point))
     elif option == 'expert':
-        sendMessage(bot, query, 'Какие курсы вы проходите?')
+        registration.sendMessage(bot, query, 'Какие курсы вы проходите?')
         return EXPERT
     elif option == 'extra':
-        sendMessage(bot, query, 'Какой челлендж?')
+        registration.sendMessage(bot, query, 'Какой челлендж?')
         return EXTRA
     elif option == 'reading':
         cursor.execute("SELECT * FROM Reading")
@@ -398,19 +401,21 @@ def options(bot, update):
                     point = i[2]
                     check = 1
         if check == 0:
-            sendMessage(bot, query, 'Какая книга?')
+            registration.sendMessage(bot, query, 'Какая книга?')
             return BOOK
         elif check == 1:
             if lastday < str(current.day) or (lastday == str(current.day) and str(int(lasthour)+4) <= str(current.hour)):
-                sendMessage(bot, query, 'Какая книга?')
+                registration.sendMessage(bot, query, 'Какая книга?')
                 return BOOK
             else:
-                sendMessage(bot, query, 'Отдохните, вы недавно читали книгу)\nВаш пойнт: ' + str(point))
+                registration.sendMessage(bot, query, 'Отдохните, вы недавно читали книгу)\nВаш пойнт: ' + str(point))
 
 def askBook(bot, update):
     chat_id = update.message.chat_id
     book = update.message.text
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Users")
     all = cursor.fetchall()
@@ -433,7 +438,9 @@ def askBook(bot, update):
     return PAGE
 
 def askPage(bot, update):
-    conn = psycopg2.connect("dbname=TimeTo user=postgres password=user")
+    conn = psycopg2.connect(host="ec2-46-137-170-51.eu-west-1.compute.amazonaws.com", database="dbriphi43088cm",
+                            user="plnyazdgkwqlaj",
+                            password="6a081e67c38abca88c0f33f3dfed14d4788b8b67c13fb74a2da6ab234a954d28")
     cursor = conn.cursor()
     chat_id = update.message.chat_id
     page = update.message.text
