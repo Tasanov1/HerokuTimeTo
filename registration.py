@@ -32,7 +32,7 @@ def askName(bot, update):
     cursor.execute("INSERT INTO Users VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (chat_id, text, "*", "*", "*", "*", "*", "*", user, "*", '*', '*'))
     conn.commit()
-    sendMessage((bot, update, '*Дата рождения:*\n(в формате dd/mm/yyyy, 01/01/2019)'))
+    sendMessage(bot, update, '*Дата рождения:*\n(в формате dd/mm/yyyy, 01/01/2019)')
     return BIRTH
 
 def askBirth(bot, update):
@@ -231,7 +231,7 @@ def askTimezone(bot, update):
         conn.commit()
         cursor.execute("INSERT INTO Reading VALUES (%s, %s, %s, %s, %s, %s)", (user, chat_id, 1, "*", '*', 0))
         conn.commit()
-        update.message.reply_text("Добро пожаловать!", reply_markup=main_menu_keyboard())
+        update.message.reply_text("Добро пожаловать!", reply_markup=keyboards.main_menu_keyboard())
         bot.send_message(-1001184336722, getInfo(update.message.chat_id))
         #1001184336722
         return ConversationHandler.END
