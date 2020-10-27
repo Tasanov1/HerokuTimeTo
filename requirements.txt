@@ -4,7 +4,7 @@ async-generator==1.10
 certifi==2018.11.29
 cffi==1.11.5
 chardet==3.0.4
-cryptography==2.4.2
+cryptography==3.2
 future==0.17.1
 gspread==3.1.0
 httplib2==0.12.0
